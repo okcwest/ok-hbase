@@ -62,6 +62,14 @@ module OkHbase
       @transport && @transport.open?
     end
 
+    def ping?
+      begin
+        return open? && tables
+      rescue
+        return false
+      end
+    end
+
     def close
       return unless open?
       @transport.close
@@ -141,6 +149,12 @@ module OkHbase
 
     def table_name(name)
       table_prefix && !name.start_with?(table_prefix) ? [table_prefix, name].join(table_prefix_separator) : name
+    end
+
+    def reset
+      OkHbase.logger.info("resetting connection")
+      _refresh_thrift_client
+      open
     end
 
     private
